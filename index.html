@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloom — Your Pregnancy Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #E8B4B8;
+    --blush: #F5D6D8;
+    --cream: #FDF6F0;
+    --sage: #8BAF8D;
+    --sage-light: #C4D8C5;
+    --terracotta: #C97B62;
+    --warm-dark: #3D2C2C;
+    --muted: #9A8585;
+    --white: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--warm-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(232,180,184,0.2) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 60% at 80% 80%, rgba(139,175,141,0.15) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 32px 0 40px;
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--warm-dark);
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: var(--rose); }
+
+  .header-date {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  /* Hero Welcome */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 40px;
+    align-items: center;
+  }
+
+  .hero-text h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.2rem;
+    font-weight: 300;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+
+  .hero-text h1 em {
+    font-style: italic;
+    color: var(--terracotta);
+  }
+
+  .hero-text p {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 300;
+    max-width: 340px;
+  }
+
+  /* Baby Visual */
+  .baby-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .week-circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blush), var(--rose));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 60px rgba(232,180,184,0.4), 0 4px 20px rgba(0,0,0,0.05);
+    position: relative;
+    animation: gentle-pulse 4s ease-in-out infinite;
+  }
+
+  @keyframes gentle-pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 20px 60px rgba(232,180,184,0.4); }
+    50% { transform: scale(1.03); box-shadow: 0 24px 70px rgba(232,180,184,0.55); }
+  }
+
+  .week-circle .week-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    font-weight: 300;
+    color: var(--warm-dark);
+    line-height: 1;
+  }
+
+  .week-circle .week-label {
+    font-size: 0.75rem;
+    color: var(--warm-dark);
+    opacity: 0.7;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .week-circle .size-label {
+    font-size: 0.8rem;
+    color: var(--terracotta);
+    margin-top: 6px;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  /* Progress bar */
+  .progress-section {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+  }
+
+  .progress-section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    margin-bottom: 20px;
+    color: var(--warm-dark);
+  }
+
+  .trimester-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .trimester-card {
+    padding: 16px;
+    border-radius: 14px;
+    background: var(--cream);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+    cursor: pointer;
+  }
+
+  .trimester-card:hover { transform: translateY(-2px); }
+
+  .trimester-card.active {
+    background: linear-gradient(135deg, var(--rose), var(--blush));
+    box-shadow: 0 8px 24px rgba(232,180,184,0.35);
+  }
+
+  .trimester-card .t-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .trimester-card.active .t-label { color: var(--warm-dark); opacity: 0.7; }
+
+  .trimester-card .t-weeks {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--warm-dark);
+  }
+
+  .progress-bar-wrap {
+    background: var(--blush);
+    height: 8px;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--rose), var(--terracotta));
+    width: 0%;
+    transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  /* Grid sections */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+    transition: transform 0.2s;
+  }
+
+  .card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+
+  .card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
+  .icon-rose { background: var(--blush); }
+  .icon-sage { background: var(--sage-light); }
+  .icon-terra { background: rgba(201,123,98,0.15); }
+
+  /* Weekly Update */
+  .weekly-card {
+    background: linear-gradient(135deg, #3D2C2C 0%, #5a3d3d 100%);
+    color: var(--white);
+    border-radius: 20px;
+    padding: 32px;
+    grid-column: span 2;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .weekly-card::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(232,180,184,0.12);
+  }
+
+  .weekly-card::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    right: 80px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(139,175,141,0.1);
+  }
+
+  .weekly-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .weekly-card .subtitle {
+    font-size: 0.8rem;
+    opacity: 0.6;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .update-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .update-list li {
+    font-size: 0.88rem;
+    opacity: 0.85;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+  }
+
+  .update-list li .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--rose);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  /* Appointments */
+  .appointment-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--cream);
+  }
+
+  .appointment-item:last-child { border-bottom: none; }
+
+  .appt-date {
+    width: 46px;
+    height: 50px;
+    background: var(--blush);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .appt-date .day { font-size: 1.2rem; font-family: 'Cormorant Garamond', serif; font-weight: 600; line-height: 1; }
+  .appt-date .month { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 500; }
+
+  .appt-info { flex: 1; }
+  .appt-info .name { font-size: 0.9rem; font-weight: 500; margin-bottom: 2px; }
+  .appt-info .time { font-size: 0.78rem; color: var(--muted); }
+
+  .appt-tag {
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .tag-routine { background: var(--sage-light); color: var(--sage); }
+  .tag-ultrasound { background: var(--blush); color: var(--terracotta); }
+  .tag-blood { background: rgba(201,123,98,0.12); color: var(--terracotta); }
+
+  /* Health Tips */
+  .tip-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--cream);
+    align-items: flex-start;
+  }
+
+  .tip-item:last-child { border-bottom: none; }
+
+  .tip-emoji {
+    font-size: 1.3rem;
+    width: 36px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .tip-item .tip-text {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--warm-dark);
+  }
+
+  .tip-item .tip-category {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Symptom tracker */
+  .symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .symptom-btn {
+    padding: 10px 8px;
+    border-radius: 12px;
+    background: var(--cream);
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.78rem;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--warm-dark);
+    transition: all 0.2s;
+  }
+
+  .symptom-btn:hover { border-color: var(--rose); background: var(--blush); }
+  .symptom-btn.selected { background: var(--blush); border-color: var(--rose); color: var(--terracotta); }
+
+  .symptom-btn .s-emoji { font-size: 1.1rem; display: block; margin-bottom: 4px; }
+
+  /* Week selector */
+  .week-selector {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    background: var(--white);
+    padding: 16px 24px;
+    border-radius: 16px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+  }
+
+  .week-selector label {
+    font-size: 0.82rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 500;
+  }
+
+  .week-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--blush);
+    outline: none;
+  }
+
+  .week-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--rose);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(232,180,184,0.6);
+  }
+
+  .week-display {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    min-width: 80px;
+    text-align: right;
+    color: var(--warm-dark);
+  }
+
+  /* Footer */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(253,246,240,0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--blush);
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: 12px 0;
+    z-index: 100;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 28px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 12px;
+  }
+
+  .nav-item:hover { background: var(--blush); }
+  .nav-item.active .nav-icon { color: var(--terracotta); }
+  .nav-item.active .nav-label { color: var(--terracotta); }
+
+  .nav-icon { font-size: 1.3rem; }
+  .nav-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; color: var(--muted); }
+
+  /* Tags/badges */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: var(--blush);
+    color: var(--terracotta);
+    margin-left: 8px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+
+  .section-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 300;
+  }
+
+  .see-all {
+    font-size: 0.8rem;
+    color: var(--rose);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Pages */
+  .page {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .page.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Calendar Page */
+  .calendar-container {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+  }
+
+  .calendar-month {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .calendar-month h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--warm-dark);
+    margin-bottom: 8px;
+  }
+
+  .calendar-nav {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .calendar-nav button {
+    background: var(--blush);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--warm-dark);
+    transition: all 0.2s;
+  }
+
+  .calendar-nav button:hover {
+    background: var(--rose);
+    color: var(--white);
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .weekday-header {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--muted);
+    padding: 8px 0;
+    text-transform: uppercase;
+  }
+
+  .calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: var(--cream);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .calendar-day:hover {
+    background: var(--blush);
+    transform: scale(1.05);
+  }
+
+  .calendar-day.appointment {
+    background: linear-gradient(135deg, var(--rose), var(--blush));
+    color: var(--white);
+    font-weight: 600;
+  }
+
+  .calendar-day.empty {
+    cursor: default;
+    color: var(--cream);
+    background: transparent;
+  }
+
+  .calendar-day.empty:hover {
+    background: transparent;
+    transform: none;
+  }
+
+  .appointment-popup {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+    border-left: 4px solid var(--rose);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .appointment-popup h4 {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--warm-dark);
+  }
+
+  .appointment-popup p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 4px 0;
+  }
+
+  /* Baby Page */
+  .baby-section {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+    margin-bottom: 24px;
+  }
+
+  .baby-section h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--warm-dark);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .baby-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .detail-item {
+    padding: 12px;
+    background: var(--cream);
+    border-radius: 12px;
+  }
+
+  .detail-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .detail-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--warm-dark);
+  }
+
+  /* Health Page */
+  .health-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .health-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+  }
+
+  .health-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-bottom: 16px;
+    color: var(--warm-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .health-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--cream);
+    font-size: 0.9rem;
+    color: var(--warm-dark);
+  }
+
+  .health-item:last-child {
+    border-bottom: none;
+  }
+
+  .health-item strong {
+    color: var(--terracotta);
+  }
+
+  @media (max-width: 700px) {
+    .hero { grid-template-columns: 1fr; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .weekly-card { grid-column: span 1; }
+    .update-list { grid-template-columns: 1fr; }
+    .trimester-row { grid-template-columns: 1fr; }
+    .hero-text h1 { font-size: 2.2rem; }
+    .auth-modal { padding: 36px 24px; }
+    .form-row { grid-template-columns: 1fr; }
+    .baby-detail-grid { grid-template-columns: 1fr; }
+    .health-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Auth Modal */
+  .auth-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    backdrop-filter: blur(4px);
+  }
+
+  .auth-modal {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 48px 40px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .auth-modal h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: 8px;
+    color: var(--warm-dark);
+  }
+
+  .auth-modal .subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--warm-dark);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 12px 14px;
+    border: 1.5px solid var(--blush);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--warm-dark);
+    background: var(--cream);
+    transition: all 0.2s;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--rose);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(232,180,184,0.1);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .auth-button {
+    width: 100%;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, var(--rose), var(--terracotta));
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .auth-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(232,180,184,0.4);
+  }
+
+  .auth-button:active {
+    transform: translateY(0);
+  }
+
+  .hidden-auth { display: none; }
+
+  @media (max-width: 700px) {
+    .hero { grid-template-columns: 1fr; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .weekly-card { grid-column: span 1; }
+    .update-list { grid-template-columns: 1fr; }
+    .trimester-row { grid-template-columns: 1fr; }
+    .hero-text h1 { font-size: 2.2rem; }
+    .auth-modal { padding: 36px 24px; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Auth Modal -->
+  <div class="auth-overlay" id="auth-overlay">
+    <div class="auth-modal">
+      <h2>Welcome to Bloom<span style="color: var(--rose);">.</span></h2>
+      <p class="subtitle">Let's get to know you and personalize your pregnancy journey.</p>
+      
+      <form id="auth-form">
+        <div class="form-group">
+          <label for="user-name">Your Name *</label>
+          <input type="text" id="user-name" placeholder="e.g., Priya" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="current-week">Current Week *</label>
+            <input type="number" id="current-week" min="1" max="40" value="24" required>
+          </div>
+          <div class="form-group">
+            <label for="due-date">Due Date *</label>
+            <input type="date" id="due-date" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="doctor-name">Primary Doctor/Provider</label>
+          <input type="text" id="doctor-name" placeholder="e.g., Dr. Meera Krishnan">
+        </div>
+
+        <div class="form-group">
+          <label for="clinic-name">Clinic/Hospital Name</label>
+          <input type="text" id="clinic-name" placeholder="e.g., City Imaging Center">
+        </div>
+
+        <button type="submit" class="auth-button">Continue to Dashboard</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======= HOME PAGE ======= -->
+  <div class="page active" id="page-home">
+  <header>
+    <div class="logo">bloom<span>.</span></div>
+    <div class="header-date" id="current-date"></div>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Hello, <em id="user-greeting">Priya</em>.<br>You're doing beautifully.</h1>
+      <p>Your little one is growing every single day. Here's what's happening this week in your pregnancy journey.</p>
+    </div>
+    <div class="baby-visual">
+      <div class="week-circle">
+        <span class="week-num" id="hero-week">24</span>
+        <span class="week-label">weeks</span>
+        <span class="size-label" id="baby-size">🌽 Corn</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Week Selector -->
+  <div class="week-selector">
+    <label>Week</label>
+    <input type="range" class="week-slider" id="week-slider" min="1" max="40" value="24">
+    <div class="week-display"><span id="week-num-display">24</span> / 40</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-section">
+    <h2>Your Journey <span class="badge" id="trimester-label">2nd Trimester</span></h2>
+    <div class="trimester-row">
+      <div class="trimester-card" id="t1">
+        <div class="t-label">First</div>
+        <div class="t-weeks">Weeks 1–13</div>
+      </div>
+      <div class="trimester-card active" id="t2">
+        <div class="t-label">Second</div>
+        <div class="t-weeks">Weeks 14–27</div>
+      </div>
+      <div class="trimester-card" id="t3">
+        <div class="t-label">Third</div>
+        <div class="t-weeks">Weeks 28–40</div>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-info">
+      <span id="days-passed">168 days into your journey</span>
+      <span id="days-left">112 days to go ✨</span>
+    </div>
+  </div>
+
+  <!-- Main Content Sections -->
+  <div class="section-header">
+    <h2>This Week</h2>
+    <span class="see-all">See all weeks →</span>
+  </div>
+
+  <div class="grid-2" style="margin-bottom: 24px;">
+    <!-- Weekly Update - full width -->
+    <div class="weekly-card">
+      <h3>Week <span id="weekly-title">24</span> — Baby Update</h3>
+      <div class="subtitle">Development Milestones</div>
+      <ul class="update-list" id="update-list">
+        <!-- populated by JS -->
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Appointments -->
+    <div class="card">
+      <h3><span class="card-icon icon-rose">📅</span> Upcoming Appointments</h3>
+      <div class="appointment-item">
+        <div class="appt-date"><span class="day">26</span><span class="month">Feb</span></div>
+        <div class="appt-info">
+          <div class="name">Routine Prenatal Check</div>
+          <div class="time">10:30 AM · <span id="appt-doctor-1">Dr. Meera Krishnan</span></div>
+        </div>
+        <span class="appt-tag tag-routine">Routine</span>
+      </div>
+      <div class="appointment-item">
+        <div class="appt-date"><span class="day">05</span><span class="month">Mar</span></div>
+        <div class="appt-info">
+          <div class="name">Anatomy Ultrasound</div>
+          <div class="time">2:00 PM · <span id="appt-clinic-1">City Imaging Center</span></div>
+        </div>
+        <span class="appt-tag tag-ultrasound">Ultrasound</span>
+      </div>
+      <div class="appointment-item">
+        <div class="appt-date"><span class="day">14</span><span class="month">Mar</span></div>
+        <div class="appt-info">
+          <div class="name">Glucose Tolerance Test</div>
+          <div class="time">8:00 AM · Fast required</div>
+        </div>
+        <span class="appt-tag tag-blood">Lab Test</span>
+      </div>
+    </div>
+
+    <!-- Health Tips -->
+    <div class="card">
+      <h3><span class="card-icon icon-sage">🌿</span> Health This Week</h3>
+      <div class="tip-item">
+        <div class="tip-emoji">💊</div>
+        <div>
+          <div class="tip-category">Nutrition</div>
+          <div class="tip-text">Continue folic acid & iron supplements. Add calcium-rich foods like dairy and leafy greens.</div>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-emoji">🚶‍♀️</div>
+        <div>
+          <div class="tip-category">Movement</div>
+          <div class="tip-text">30 min of gentle walking daily helps reduce back pain and prepares your body for labour.</div>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-emoji">😴</div>
+        <div>
+          <div class="tip-category">Rest</div>
+          <div class="tip-text">Sleep on your left side to improve blood flow to baby. Use a pregnancy pillow for support.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Symptom Tracker -->
+  <div class="card" style="margin-top: 24px; margin-bottom: 100px;">
+    <h3><span class="card-icon icon-terra">📝</span> How are you feeling today?</h3>
+    <div class="symptom-grid" id="symptom-grid">
+      <button class="symptom-btn" onclick="toggleSymptom(this)"><span class="s-emoji">🤢</span>Nausea</button>
+      <button class="symptom-btn" onclick="toggleSymptom(this)"><span class="s-emoji">😓</span>Fatigue</button>
+      <button class="symptom-btn" onclick="toggleSymptom(this)"><span class="s-emoji">🔙</span>Back Pain</button>
+      <button class="symptom-btn" onclick="toggleSymptom(this)"><span class="s-emoji">💧</span>Swelling</button>
+      <button class="symptom-btn" onclick="toggleSymptom(this)"><span class="s-emoji">😤</span>Heartburn</button>
+      <button class="symptom-btn" onclick="toggleSymptom(this)"><span class="s-emoji">😊</span>Feeling Great</button>
+      <button class="symptom-btn" onclick="toggleSymptom(this)"><span class="s-emoji">💤</span>Insomnia</button>
+      <button class="symptom-btn" onclick="toggleSymptom(this)"><span class="s-emoji">🧠</span>Mood Swings</button>
+      <button class="symptom-btn" onclick="toggleSymptom(this)"><span class="s-emoji">🍽️</span>Cravings</button>
+    </div>
+  </div>
+
+  </div>
+  <!-- End page-home -->
+</div>
+
+<!-- ======= CALENDAR PAGE ======= -->
+<div class="page" id="page-calendar">
+  <header>
+    <div class="logo">bloom<span>.</span></div>
+    <div class="header-date" id="current-date-cal"></div>
+  </header>
+  
+  <div style="margin-bottom: 100px;">
+    <div class="section-header">
+      <h2>Calendar</h2>
+    </div>
+    <div class="calendar-container">
+      <div class="calendar-month">
+        <div class="calendar-nav">
+          <button onclick="prevMonth()">← Prev</button>
+          <h3 id="calendar-month-name">February 2026</h3>
+          <button onclick="nextMonth()">Next →</button>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+      </div>
+      <div id="calendar-details"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= BABY PAGE ======= -->
+<div class="page" id="page-baby">
+  <header>
+    <div class="logo">bloom<span>.</span></div>
+    <div class="header-date" id="current-date-baby"></div>
+  </header>
+
+  <div style="margin-bottom: 100px;">
+    <div class="section-header">
+      <h2>Your Baby</h2>
+    </div>
+
+    <div class="baby-section">
+      <h3>📏 Baby Measurements</h3>
+      <div class="baby-detail-grid">
+        <div class="detail-item">
+          <div class="detail-label">Current Week</div>
+          <div class="detail-value" id="baby-week">24</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Baby Size</div>
+          <div class="detail-value" id="baby-size-page">🌽 Corn</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Approximate Weight</div>
+          <div class="detail-value" id="baby-weight">~650g</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Estimated Length</div>
+          <div class="detail-value" id="baby-length">~30-31 cm</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="baby-section">
+      <h3>🧬 Development Milestones</h3>
+      <ul id="baby-milestones" style="list-style: none; padding: 0;">
+        <!-- Populated by JS -->
+      </ul>
+    </div>
+
+    <div class="baby-section">
+      <h3>💡 Fun Facts</h3>
+      <div style="font-size: 0.95rem; line-height: 1.8; color: var(--warm-dark);">
+        <p id="baby-fun-fact"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= HEALTH PAGE ======= -->
+<div class="page" id="page-health">
+  <header>
+    <div class="logo">bloom<span>.</span></div>
+    <div class="header-date" id="current-date-health"></div>
+  </header>
+
+  <div style="margin-bottom: 100px;">
+    <div class="section-header">
+      <h2>Your Health</h2>
+    </div>
+
+    <div class="health-grid">
+      <div class="health-card">
+        <h3>💊 Nutrition</h3>
+        <div class="health-item"><strong>Protein:</strong> 71g daily</div>
+        <div class="health-item"><strong>Calcium:</strong> 1000mg daily</div>
+        <div class="health-item"><strong>Iron:</strong> 27mg daily</div>
+        <div class="health-item"><strong>Folic Acid:</strong> 600mcg daily</div>
+        <div class="health-item"><strong>Vitamin D:</strong> 15mcg daily</div>
+      </div>
+      <div class="health-card">
+        <h3>🚶‍♀️ Exercise & Movement</h3>
+        <div class="health-item"><strong>Daily Activity:</strong> 30 min walking</div>
+        <div class="health-item"><strong>Safe Exercises:</strong> Swimming, yoga, pilates</div>
+        <div class="health-item"><strong>Avoid:</strong> Contact sports, heavy lifting</div>
+        <div class="health-item"><strong>Goals:</strong> Improve flexibility & stamina</div>
+        <div class="health-item"><strong>Tip:</strong> Stay hydrated, wear comfortable shoes</div>
+      </div>
+    </div>
+
+    <div class="health-grid">
+      <div class="health-card">
+        <h3>😴 Sleep & Rest</h3>
+        <div class="health-item"><strong>Recommended Sleep:</strong> 8-10 hours</div>
+        <div class="health-item"><strong>Best Position:</strong> Sleep on left side</div>
+        <div class="health-item"><strong>Pillows:</strong> Use pregnancy pillow under belly & between knees</div>
+        <div class="health-item"><strong>Avoid:</strong> Back sleeping after 20 weeks</div>
+        <div class="health-item"><strong>Tip:</strong> Keep bedroom cool & dark</div>
+      </div>
+      <div class="health-card">
+        <h3>⚠️ Warning Signs</h3>
+        <div class="health-item"><strong>Severe headache</strong> with vision changes</div>
+        <div class="health-item"><strong>Vaginal bleeding</strong> or heavy spotting</div>
+        <div class="health-item"><strong>Severe abdominal pain</strong></div>
+        <div class="health-item"><strong>Fluid leakage</strong> (unusual discharge)</div>
+        <div class="health-item"><strong>Decreased fetal movement</strong></div>
+      </div>
+    </div>
+
+    <div class="health-card" style="margin-top: 24px;">
+      <h3>🏥 Emergency Contacts</h3>
+      <div class="health-item"><strong>Doctor:</strong> <span id="doctor-contact">Dr. Meera Krishnan</span></div>
+      <div class="health-item"><strong>Hospital:</strong> <span id="clinic-contact">City Imaging Center</span></div>
+      <div class="health-item"><strong>Ambulance:</strong> 108 (India)</div>
+      <div class="health-item"><strong>Poison Control:</strong> 1800-11-1200</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= PROFILE PAGE ======= -->
+<div class="page" id="page-profile">
+  <header>
+    <div class="logo">bloom<span>.</span></div>
+    <div class="header-date" id="current-date-profile"></div>
+  </header>
+
+  <div style="margin-bottom: 100px;">
+    <div class="section-header">
+      <h2>Your Profile</h2>
+    </div>
+
+    <div class="card">
+      <h3 style="border-bottom: 1px solid var(--cream); padding-bottom: 16px; margin-bottom: 16px;">👤 Personal Information</h3>
+      <div class="baby-detail-grid">
+        <div class="detail-item">
+          <div class="detail-label">Full Name</div>
+          <div class="detail-value" id="profile-name">-</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Current Week</div>
+          <div class="detail-value" id="profile-week">-</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Due Date</div>
+          <div class="detail-value" id="profile-due-date">-</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Days Remaining</div>
+          <div class="detail-value" id="profile-days-left">-</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 24px;">
+      <h3 style="border-bottom: 1px solid var(--cream); padding-bottom: 16px; margin-bottom: 16px;">🏥 Healthcare Provider</h3>
+      <div class="baby-detail-grid">
+        <div class="detail-item">
+          <div class="detail-label">Doctor Name</div>
+          <div class="detail-value" id="profile-doctor">-</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Clinic/Hospital</div>
+          <div class="detail-value" id="profile-clinic">-</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="auth-button" onclick="editProfile()" style="margin-top: 24px; max-width: 200px;">Edit Profile</button>
+    <button class="auth-button" onclick="logoutUser()" style="margin-top: 12px; max-width: 200px; background: linear-gradient(135deg, #9a6969, #7a5252);">Logout</button>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="goToPage('home')">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">Home</div>
+  </div>
+  <div class="nav-item" onclick="goToPage('calendar')">
+    <div class="nav-icon">📅</div>
+    <div class="nav-label">Calendar</div>
+  </div>
+  <div class="nav-item" onclick="goToPage('baby')">
+    <div class="nav-icon">👶</div>
+    <div class="nav-label">Baby</div>
+  </div>
+  <div class="nav-item" onclick="goToPage('health')">
+    <div class="nav-icon">💊</div>
+    <div class="nav-label">Health</div>
+  </div>
+  <div class="nav-item" onclick="goToPage('profile')">
+    <div class="nav-icon">👤</div>
+    <div class="nav-label">Profile</div>
+  </div>
+</div>
+
+<script>
+  // ====== AUTH MANAGEMENT ======
+  const USER_KEY = 'bloomUserData';
+
+  function getUserData() {
+    const data = localStorage.getItem(USER_KEY);
+    return data ? JSON.parse(data) : null;
+  }
+
+  function saveUserData(userData) {
+    localStorage.setItem(USER_KEY, JSON.stringify(userData));
+  }
+
+  function initializeAuth() {
+    const authOverlay = document.getElementById('auth-overlay');
+    const authForm = document.getElementById('auth-form');
+    const userData = getUserData();
+
+    if (userData) {
+      // User exists, hide auth overlay
+      authOverlay.style.display = 'none';
+      loadUserProfile(userData);
+    } else {
+      // New user, show auth overlay
+      authOverlay.style.display = 'flex';
+      setDefaultDueDate();
+    }
+
+    // Handle form submission
+    authForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const formData = {
+        name: document.getElementById('user-name').value,
+        currentWeek: parseInt(document.getElementById('current-week').value),
+        dueDate: document.getElementById('due-date').value,
+        doctorName: document.getElementById('doctor-name').value || 'Your Provider',
+        clinicName: document.getElementById('clinic-name').value || 'Your Clinic'
+      };
+
+      saveUserData(formData);
+      authOverlay.style.display = 'none';
+      loadUserProfile(formData);
+      updateUI(formData.currentWeek);
+    });
+  }
+
+  function setDefaultDueDate() {
+    // Calculate due date from current week (280 days from LMP)
+    const currentWeek = parseInt(document.getElementById('current-week').value) || 24;
+    const daysFromStart = currentWeek * 7;
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + (280 - daysFromStart));
+    document.getElementById('due-date').valueAsDate = dueDate;
+  }
+
+  function loadUserProfile(userData) {
+    // Update greeting
+    document.getElementById('user-greeting').textContent = userData.name;
+
+    // Update appointment details
+    const apptDoctor = document.getElementById('appt-doctor-1');
+    const apptClinic = document.getElementById('appt-clinic-1');
+    
+    if (apptDoctor) apptDoctor.textContent = userData.doctorName;
+    if (apptClinic) apptClinic.textContent = userData.clinicName;
+
+    // Update week slider to current week
+    const slider = document.getElementById('week-slider');
+    slider.value = userData.currentWeek;
+  }
+
+  function logoutUser() {
+    localStorage.removeItem(USER_KEY);
+    location.reload();
+  }
+
+  // ====== WEEK SELECTOR - DEFAULT DATE HANDLER ======
+  document.getElementById('current-week').addEventListener('change', setDefaultDueDate);
+
+  // Current date
+  const dateEl = document.getElementById('current-date');
+  dateEl.textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Baby sizes by week
+  const babySizes = {
+    1:'🫙 Poppy seed', 2:'🌱 Sesame seed', 3:'🌱 Sesame', 4:'🫐 Blueberry',
+    5:'🍒 Apple seed', 6:'🍊 Pea', 7:'🫐 Blueberry', 8:'🍇 Raspberry',
+    9:'🍒 Grape', 10:'🍓 Strawberry', 11:'🍋 Lime', 12:'🥝 Kiwi',
+    13:'🍑 Peach', 14:'🍋 Lemon', 15:'🍎 Apple', 16:'🥑 Avocado',
+    17:'🍐 Pear', 18:'🫑 Pepper', 19:'🥭 Mango', 20:'🍌 Banana',
+    21:'🥕 Carrot', 22:'🌽 Corn', 23:'🌽 Corn', 24:'🌽 Corn',
+    25:'🥬 Cauliflower', 26:'🥬 Lettuce', 27:'🥦 Broccoli',
+    28:'🍆 Eggplant', 29:'🥥 Coconut', 30:'🍈 Melon', 31:'🍈 Cantaloupe',
+    32:'🍍 Pineapple', 33:'🍍 Pineapple', 34:'🥬 Cabbage', 35:'🎃 Honeydew',
+    36:'🥬 Romaine head', 37:'🫚 Swiss chard', 38:'🎃 Mini pumpkin',
+    39:'🍉 Watermelon', 40:'🎃 Small pumpkin'
+  };
+
+  const weekUpdates = {
+    1: ['Fertilization occurs', 'Cell division begins', 'Implantation starts', 'Hormones begin shifting'],
+    8: ['Facial features forming', 'Tiny fingers & toes', 'Heart beating strongly', 'Neural tube closed'],
+    12: ['Baby can suck thumb', 'Reflexes developing', 'Organs mostly formed', 'Risk of miscarriage drops'],
+    16: ['Baby hears your voice', 'Taste buds forming', 'Movements beginning', 'You may feel flutters'],
+    20: ['Baby is very active', 'Halfway milestone!', 'Sleep cycles forming', 'Hair growing on head'],
+    24: ['Lungs developing rapidly', 'Baby responds to sound', 'Facial features distinct', 'Can survive with support'],
+    28: ['Eyes can open & close', 'REM sleep begins', 'Brain developing fast', '3rd trimester starts'],
+    32: ['Practicing breathing', 'Body fat increasing', 'Head moving down', 'Immune system boosting'],
+    36: ['Baby is nearly full term', 'Most organs ready', 'Dropping into pelvis', 'Preparing for birth'],
+    40: ['Baby is fully ready', 'Due date arrives!', 'Labour signs to watch', 'Trust your instincts']
+  };
+
+  function getWeekData(week) {
+    const keys = Object.keys(weekUpdates).map(Number).sort((a,b)=>a-b);
+    let chosen = keys[0];
+    for (let k of keys) { if (week >= k) chosen = k; }
+    return weekUpdates[chosen];
+  }
+
+  function updateUI(week) {
+    // Hero
+    document.getElementById('hero-week').textContent = week;
+    document.getElementById('baby-size').textContent = babySizes[week] || '🍼 Growing!';
+    document.getElementById('week-num-display').textContent = week;
+    document.getElementById('weekly-title').textContent = week;
+
+    // Progress
+    const pct = ((week - 1) / 39) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    const days = week * 7;
+    const left = 280 - days;
+    document.getElementById('days-passed').textContent = days + ' days into your journey';
+    document.getElementById('days-left').textContent = Math.max(0, left) + ' days to go ✨';
+
+    // Trimester
+    const t1 = document.getElementById('t1');
+    const t2 = document.getElementById('t2');
+    const t3 = document.getElementById('t3');
+    const badge = document.getElementById('trimester-label');
+
+    t1.classList.remove('active'); t2.classList.remove('active'); t3.classList.remove('active');
+    if (week <= 13) { t1.classList.add('active'); badge.textContent = '1st Trimester'; }
+    else if (week <= 27) { t2.classList.add('active'); badge.textContent = '2nd Trimester'; }
+    else { t3.classList.add('active'); badge.textContent = '3rd Trimester'; }
+
+    // Weekly updates
+    const updates = getWeekData(week);
+    const ul = document.getElementById('update-list');
+    ul.innerHTML = updates.map(u => `<li><span class="dot"></span>${u}</li>`).join('');
+  }
+
+  // Slider
+  const slider = document.getElementById('week-slider');
+  slider.addEventListener('input', () => updateUI(parseInt(slider.value)));
+
+  // Symptom toggling
+  function toggleSymptom(btn) {
+    btn.classList.toggle('selected');
+  }
+
+  // ====== PAGE NAVIGATION ======
+  function goToPage(pageName) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    // Show selected page
+    document.getElementById(`page-${pageName}`).classList.add('active');
+    
+    // Update nav items
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    event.target.closest('.nav-item').classList.add('active');
+
+    // Load page-specific data
+    if (pageName === 'calendar') loadCalendar();
+    else if (pageName === 'baby') loadBabyPage();
+    else if (pageName === 'health') loadHealthPage();
+    else if (pageName === 'profile') loadProfilePage();
+    
+    // Update header dates
+    updateHeaderDates();
+  }
+
+  function updateHeaderDates() {
+    const dateStr = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    document.querySelectorAll('[id^="current-date"]').forEach(el => {
+      el.textContent = dateStr;
+    });
+  }
+
+  // ====== CALENDAR PAGE ======
+  let currentCalendarMonth = new Date();
+
+  function prevMonth() {
+    currentCalendarMonth.setMonth(currentCalendarMonth.getMonth() - 1);
+    loadCalendar();
+  }
+
+  function nextMonth() {
+    currentCalendarMonth.setMonth(currentCalendarMonth.getMonth() + 1);
+    loadCalendar();
+  }
+
+  function loadCalendar() {
+    const year = currentCalendarMonth.getFullYear();
+    const month = currentCalendarMonth.getMonth();
+    const monthName = currentCalendarMonth.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+    document.getElementById('calendar-month-name').textContent = monthName;
+
+    // Get first day and number of days in month
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    let html = '';
+    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    // Add weekday headers
+    weekDays.forEach(day => {
+      html += `<div class="weekday-header">${day}</div>`;
+    });
+
+    // Add empty cells for days before month starts
+    for (let i = 0; i < firstDay; i++) {
+      html += `<div class="calendar-day empty"></div>`;
+    }
+
+    // Add days of month
+    const appointments = ['26', '5', '14']; // Example appointments
+    for (let i = 1; i <= daysInMonth; i++) {
+      const hasAppt = appointments.includes(String(i));
+      html += `<div class="calendar-day ${hasAppt ? 'appointment' : ''}">${i}</div>`;
+    }
+
+    document.getElementById('calendar-grid').innerHTML = html;
+  }
+
+  // ====== BABY PAGE ======
+  const babyWeights = {
+    1: '~1g', 8: '~16g', 12: '~45g', 16: '~100g', 20: '~300g', 
+    24: '~650g', 28: '~1000g', 32: '~1700g', 36: '~2400g', 40: '~3400g'
+  };
+
+  const babyLengths = {
+    1: '~0.1cm', 8: '~1.6cm', 12: '~5cm', 16: '~10cm', 20: '~16cm',
+    24: '~30-31cm', 28: '~35-36cm', 32: '~40-41cm', 36: '~45-47cm', 40: '~50-51cm'
+  };
+
+  const babyFunFacts = {
+    1: 'Congratulations! You are officially pregnant. The journey begins now.',
+    8: 'Your tiny baby\'s heart is already beating!',
+    12: 'Your baby can already make facial expressions and is sucking their thumb.',
+    16: 'Baby can hear your voice now. Try talking or singing to your baby!',
+    20: 'Halfway there! You\'re at the midpoint of your pregnancy.',
+    24: 'Your baby\'s lungs are developing rapidly. This is called the "age of viability."',
+    28: 'Welcome to the third trimester! Your baby\'s eyes can now open and close.',
+    32: 'Your baby is practicing breathing amniotic fluid.',
+    36: 'Your baby is almost full-term and ready for the world!',
+    40: 'Your baby is full-term! Labor could start any day now.'
+  };
+
+  function getClosestWeekData(week, dataMap) {
+    const keys = Object.keys(dataMap).map(Number).sort((a,b)=>a-b);
+    let closest = keys[0];
+    for (let k of keys) { if (week >= k) closest = k; }
+    return dataMap[closest];
+  }
+
+  function loadBabyPage() {
+    const userData = getUserData();
+    const week = userData?.currentWeek || 24;
+    
+    document.getElementById('baby-week').textContent = week;
+    document.getElementById('baby-size-page').textContent = babySizes[week] || '🍼 Growing!';
+    document.getElementById('baby-weight').textContent = getClosestWeekData(week, babyWeights);
+    document.getElementById('baby-length').textContent = getClosestWeekData(week, babyLengths);
+
+    const milestones = getWeekData(week);
+    const milestonesHtml = milestones.map(m => `<li style="padding: 8px 0; font-size: 0.9rem; color: var(--warm-dark);"><span style="color: var(--rose); font-weight: 600;">✓</span> ${m}</li>`).join('');
+    document.getElementById('baby-milestones').innerHTML = milestonesHtml;
+
+    document.getElementById('baby-fun-fact').textContent = getClosestWeekData(week, babyFunFacts);
+  }
+
+  // ====== HEALTH PAGE ======
+  function loadHealthPage() {
+    const userData = getUserData();
+    document.getElementById('doctor-contact').textContent = userData?.doctorName || 'Your Doctor';
+    document.getElementById('clinic-contact').textContent = userData?.clinicName || 'Your Clinic';
+  }
+
+  // ====== PROFILE PAGE ======
+  function loadProfilePage() {
+    const userData = getUserData();
+    if (!userData) return;
+
+    document.getElementById('profile-name').textContent = userData.name;
+    document.getElementById('profile-week').textContent = userData.currentWeek + ' weeks';
+    document.getElementById('profile-due-date').textContent = new Date(userData.dueDate).toLocaleDateString('en-IN');
+    
+    const daysLeft = Math.ceil((new Date(userData.dueDate) - new Date()) / (1000 * 60 * 60 * 24));
+    document.getElementById('profile-days-left').textContent = Math.max(0, daysLeft) + ' days';
+    
+    document.getElementById('profile-doctor').textContent = userData.doctorName;
+    document.getElementById('profile-clinic').textContent = userData.clinicName;
+  }
+
+  function editProfile() {
+    const userData = getUserData();
+    if (userData) {
+      document.getElementById('user-name').value = userData.name;
+      document.getElementById('current-week').value = userData.currentWeek;
+      document.getElementById('due-date').value = userData.dueDate;
+      document.getElementById('doctor-name').value = userData.doctorName;
+      document.getElementById('clinic-name').value = userData.clinicName;
+      document.getElementById('auth-overlay').style.display = 'flex';
+    }
+  }
+
+  // Initialize
+  window.addEventListener('load', () => {
+    initializeAuth();
+    setTimeout(() => {
+      const userData = getUserData();
+      updateUI(userData?.currentWeek || 24);
+      updateHeaderDates();
+    }, 100);
+  });
+</script>
+</body>
+</html>
